@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview Field search dropdown.
  * @author koen.van.wijk@ict.nl Koen van Wijk
@@ -15,25 +14,25 @@ var CustomFields = CustomFields || {};
 
 class FieldSearchDropdown extends Blockly.FieldDropdown {
 
-   constructor(options, opt_validator) {
-    super(options, opt_validator)
+  constructor(options, opt_validator) {
+  super(options, opt_validator)
 
-    // save the options
-    this.option_function = options    
-    this.searchString = ''
-   }
+  // save the options
+  this.option_function = options    
+  this.searchString = ''
+  }
 
-
-
-
+  // override the showEditor_ method to add the search input
   showEditor_() {
     super.showEditor_();
     const searchInput = this.dropdownCreateSearch_();
     searchInput.addEventListener('input', this.dropdownSearchOnChange_.bind(this));
     searchInput.addEventListener('keydown', this.handleKeyEvent_.bind(this));
-    setFocus();
+    // set the focus on the search input
+    this.setFocus();
   }
 
+  // create a search input
   dropdownCreateSearch_() {
     var searchInput = document.createElement('input');
     searchInput.setAttribute('type', 'search');
@@ -45,15 +44,22 @@ class FieldSearchDropdown extends Blockly.FieldDropdown {
     return searchInput;
   }
 
+  // reset the search string when the menu is closed
+  onItemSelected_(menu, menuItem) {
+    this.searchString = ''
+    super.onItemSelected_(menu, menuItem)
+  }
+
+  // handle the enter and down arrow keys
   handleKeyEvent_(event) {
     const key = event.which || event.keyCode;
   
-    // enter select the first option
-    if (key == 13) {
-      // enter
+    // enter select the only option
+    if (key == 13) { // enter
       const options = this.filteredOptions || this.getOptions();
       if (options.length == 1 ) {
         this.setValue(options[0][1]);
+        this.searchString = ''
         Blockly.DropDownDiv.hideIfOwner(this, true);
       }
     }
@@ -65,26 +71,29 @@ class FieldSearchDropdown extends Blockly.FieldDropdown {
       if (options.length > 0) {
         // get the menu
         const menu = this.menu_
-        menu.highlightFirst_();
+        menu.highlightFirst();
         menu.focus();
       }
     }
   }
 
-
+  // handle the search input change event
   dropdownSearchOnChange_(event) {
-    const searchString = event.target.value.toLowerCase();
+    const searchStringLower = event.target.value.toLowerCase();
     
-    const filteredOptions = this.getOptions().filter(function(option) {
-      return option[0].toLowerCase().indexOf(searchString) !== -1;
+    // save the filtered options needed for the enter key
+    this.filteredOptions = this.getOptions().filter(function(option) {
+      return option[0].toLowerCase().indexOf(searchStringLower) !== -1;
     });
+    
+    // save the search string and the cursor position
     this.searchString = event.target.value
+    // cursor not saved in the this as it is not available in the set
     Blockly.DropDownDiv.getContentDiv().cursor = event.target.selectionStart;
-    this.updateOptions_(filteredOptions);
-    this.filteredOptions = filteredOptions;
+    this.updateOptions_(this.filteredOptions);
 
     // Set a timeout to focus on the search input after a short delay.
-    setFocus();
+    this.setFocus();
   }
 
   updateOptions_(options) {
@@ -122,6 +131,6 @@ class FieldSearchDropdown extends Blockly.FieldDropdown {
     }, 10);
   }
 }
-Blockly.fieldRegistry.register('field_searchdropdown', CustomFields.FieldSearchDropdown);
+Blockly.fieldRegistry.register('field_searchdropdown', FieldSearchDropdown);
 
 CustomFields.FieldSearchDropdown = FieldSearchDropdown;
