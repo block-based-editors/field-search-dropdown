@@ -275,7 +275,7 @@ Blockly.Blocks['test_searchdropdown_field'] = {
   init: function() {
     this.appendDummyInput()
         .appendField('Dropdown')
-        .appendField(new CustomFields.FieldSearchDropdown(dropdown_options), 'DROP');
+        .appendField(new FieldSearchDropdown(dropdown_options), 'DROP');
     this.setStyle('loop_blocks');
   }
 };
